@@ -20,6 +20,10 @@ def cadastro(request):
             messages.error(request, 'As senhas não correspondem')
             return redirect('cadastro')
         if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email já cadastrado')
+            return redirect('cadastro')
+        if User.objects.filter(username=nome).exists():
+            messages.error(request, 'Usuário já cadastrado')
             return redirect('cadastro')
         user = User.objects.create_user(username=nome, email=email, password=senha)
         user.save()
