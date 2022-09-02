@@ -4,30 +4,27 @@ from django.contrib import auth, messages
 from receitas.models import Receita
 
 
-
 def cadastro(request):
     if request.method == 'POST':
         nome = request.POST['nome']
         email = request.POST['email']
         senha = request.POST['password']
         senha2 = request.POST['password2']
-        if not nome.strip():
-            print('O campo nome não pode ficar em branco')
+        if campo_vazio(nome):
+            messages.error(request, 'O campo nome não pode ficar em branco')
             return redirect('cadastro')
-        if not email.strip():
-            print('O campo nome não pode ficar em branco')
+        if campo_vazio(email):
+            messages.error(request, 'O campo nome não pode ficar em branco')
             return redirect('cadastro')
         if senha != senha2:
             messages.error(request, 'As senhas não correspondem')
-            print('As senhas não correspondem')
             return redirect('cadastro')
         if User.objects.filter(email=email).exists():
-            print('Usuario ja cadastrado')
             return redirect('cadastro')
         user = User.objects.create_user(username=nome, email=email, password=senha)
         user.save()
         print('Usuario cadastrado com sucesso')
-        messages.success('Usuario cadastrado com sucesso')
+        messages.success(request, 'Usuario cadastrado com sucesso')
         return redirect('login')
     else:
         return render(request, 'usuarios/cadastro.html')
@@ -62,7 +59,7 @@ def dashboard(request):
         receitas = Receita.objects.order_by('-data_receita').filter(pessoa=id)
 
         dados = {
-            'receitas' : receitas
+            'receitas': receitas
         }
 
         return render(request, 'usuarios/dashboard.html', dados)
@@ -87,3 +84,7 @@ def cria_receita(request):
         return redirect('dashboard')
     else:
         return render(request, 'usuarios/cria_receita.html')
+
+
+def campo_vazio(campo):
+    return not campo.strip()
